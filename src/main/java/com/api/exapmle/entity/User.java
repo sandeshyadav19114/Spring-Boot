@@ -20,6 +20,7 @@ public class User {
     private String mobile;
 
     public String getMobile() {
+
         return mobile;
     }
 
@@ -52,6 +53,5 @@ public class User {
 
         this.id = id;
     }
-
 
 }

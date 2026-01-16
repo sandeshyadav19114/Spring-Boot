@@ -7,10 +7,7 @@ import com.api.exapmle.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
-
 @RestController
 
 @RequestMapping("api/v1/employee")
@@ -59,7 +56,7 @@ public class UserController {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
 
-    @PutMapping
+    @PutMapping("/update")
    // http://localhost:8080/api/v1/employee
 
     public ResponseEntity<APIResponse<String>> UpdateRegistrations(
@@ -96,7 +93,6 @@ public class UserController {
         response.setMessage("Employee Details");
         response.setStatus(200);
         response.setData(user);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
