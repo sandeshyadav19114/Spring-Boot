@@ -40,4 +40,20 @@ public class TwilioConfig {
         this.fromNumber=fromNumber;
         return "";
     }
+// for Whatsapp service
+    private String whatsappNumber;
+
+    public void setFromNumber(String fromNumber) {
+        this.fromNumber = fromNumber;
+    }
+
+    public String getWhatsappNumber() {
+        return whatsappNumber;
+    }
+
+    @PostConstruct
+    public void  initTwilio(){
+        Twilio.init(accountSid,authToken);
+    }
 }
+
