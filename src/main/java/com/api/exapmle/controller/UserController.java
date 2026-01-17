@@ -1,3 +1,4 @@
+
 package com.api.exapmle.controller;
 
 import com.api.exapmle.dto.APIResponse;
@@ -21,7 +22,7 @@ public class UserController {
     private final SmsSender smsSender;
     private final EmailSender emailSender;
 
-    public UserController(UserService userService, 
+    public UserController(UserService userService,
                           WhatsappSender whatsappSender,
                           SmsSender smsSender,
                           EmailSender emailSender) {
@@ -103,6 +104,38 @@ public class UserController {
         response.setMessage("Employee Details");
         response.setStatus(200);
         response.setData(user);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+   //******************************* Pagination & Sorting in Spring boot - JPARepository  **********************
+    @GetMapping
+    public ResponseEntity<APIResponse<List<User>>> fetchAllRegistrations(
+            @RequestParam(value = "pageNo",  defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize",  defaultValue = "5", required = false) int pageSize
+
+    ){
+        List<User> employees = userService.getRegistrations(pageNo,pageSize);
+        APIResponse<List<User>> response = new APIResponse<>();
+        response.setMessage("Employee Records");
+        response.setStatus(200);
+        response.setData(employees);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+//  *************************************************  Sorting  ********************************************************************
+    public ResponseEntity<APIResponse<List<User>>> fetchAllRegistrations(
+            @RequestParam(value = "pageNo",  defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize",  defaultValue = "5", required = false) int pageSize,
+            @RequestParam(value = "sortBy",  defaultValue = "id", required = false) String sortBy,
+            @RequestParam(value = "sortDir",  defaultValue = "asc", required = false) String sortDir
+    ){
+        List<User> employees = userService.getRegistrations(pageNo,pageSize,sortBy,sortDir);
+        APIResponse<List<User>> response = new APIResponse<>();
+        response.setMessage("Employee Records");
+        response.setStatus(200);
+        response.setData(employees);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
