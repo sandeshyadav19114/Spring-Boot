@@ -4,103 +4,105 @@ import com.api.exapmle.dto.APIResponse;
 import com.api.exapmle.dto.UserDto;
 import com.api.exapmle.entity.User;
 import com.api.exapmle.service.UserService;
+import com.api.exapmle.service.WhatsappSender;
+import com.api.exapmle.service.SmsSender;
+import com.api.exapmle.service.EmailSender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
 @RestController
-
 @RequestMapping("api/v1/employee")
-
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final WhatsappSender whatsappSender;
+    private final SmsSender smsSender;
+    private final EmailSender emailSender;
 
-    public UserController(UserService userService) {
-
+    public UserController(UserService userService, 
+                          WhatsappSender whatsappSender,
+                          SmsSender smsSender,
+                          EmailSender emailSender) {
         this.userService = userService;
-
+        this.whatsappSender = whatsappSender;
+        this.smsSender = smsSender;
+        this.emailSender = emailSender;
     }
-        @PostMapping ("/save")
 
+    @PostMapping("/save")
+    public ResponseEntity<APIResponse<String>> saveEmployee(@RequestBody UserDto userDto) {
+        // Save employee
+        userService.saveEmployee(userDto);
 
-            // http://localhost:8080/api/v1/employee/save
+        // Send notifications
+        String smsMessage = "Hello " + userDto.getName() + ", your registration is successful!";
+        smsSender.sendSms(userDto.getMobile(), smsMessage);
+        whatsappSender.sendWhatsappMessage(userDto.getMobile(), smsMessage);
+        emailSender.sendEmail(userDto.getEmail(), "Registration Successful", smsMessage);
 
-            public ResponseEntity <APIResponse <String>> saveEmployee( @RequestBody UserDto userDto) {
-            System.out.println(userDto.getName());
-            System.out.println(userDto.getEmail());       //for seen output in backend
-            System.out.println(userDto.getMobile());
+        // Build response
+        APIResponse<String> response = new APIResponse<>();
+        response.setMessage("Employee saved and notifications sent");
+        response.setStatus(201);
+        response.setData("saved!!");
 
-
-            userService.saveEmployee(userDto);//for seen output in database through service layer
-
-            APIResponse<String> response = new APIResponse<>();
-            response.setMessage("done");
-            response.setStatus(201);
-            response.setData("saved!!");
-
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        }
-               //   http://localhost:8080/api/v1/employee/delete?id=
-
- @DeleteMapping("/delete")
-            public ResponseEntity<APIResponse<String>> deleteEmployee( @RequestParam long id)
-
-			{
-                userService.deleteEmployee(id);
-                APIResponse<String> response = new APIResponse<>();
-                response.setMessage("Delete....");
-                response.setStatus(200);
-                response.setData("Emplyee is deleted");
-
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            }
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
     @PutMapping("/update")
-   // http://localhost:8080/api/v1/employee
-
-    public ResponseEntity<APIResponse<String>> UpdateRegistrations(
-            @RequestBody UserDto dto
-    ){
+    public ResponseEntity<APIResponse<String>> updateEmployee(@RequestBody UserDto dto) {
         userService.updateRegistrationById(dto);
 
+        String message = "Hello " + dto.getName() + ", your profile has been updated.";
+        smsSender.sendSms(dto.getMobile(), message);
+        whatsappSender.sendWhatsappMessage(dto.getMobile(), message);
+        emailSender.sendEmail(dto.getEmail(), "Profile Updated", message);
+
         APIResponse<String> response = new APIResponse<>();
-        response.setMessage("Updated....");
+        response.setMessage("Employee updated and notifications sent");
         response.setStatus(200);
-        response.setData("Employee Record is udpdated");
+        response.setData("Employee Record updated");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<APIResponse<String>> deleteEmployee(@RequestParam long id) {
+        User user = userService.getRegistrationById(id); // get info for notifications
+        userService.deleteEmployee(id);
+
+        String message = "Hello " + user.getName() + ", your profile has been deleted.";
+        smsSender.sendSms(user.getMobile(), message);
+        whatsappSender.sendWhatsappMessage(user.getMobile(), message);
+        emailSender.sendEmail(user.getEmail(), "Profile Deleted", message);
+
+        APIResponse<String> response = new APIResponse<>();
+        response.setMessage("Employee deleted and notifications sent");
+        response.setStatus(200);
+        response.setData("Employee is deleted");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/all")
-
-    public ResponseEntity<APIResponse<List<User>>> getAllEmployees(){
-
+    public ResponseEntity<APIResponse<List<User>>> getAllEmployees() {
         List<User> users = userService.getALLEmployees();
         APIResponse<List<User>> response = new APIResponse<>();
         response.setMessage("Done!!!");
         response.setStatus(200);
         response.setData(users);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @GetMapping("/getReg")
-    public ResponseEntity<APIResponse<User>> getRegById(
-            @RequestParam long id
-    ) {
+    public ResponseEntity<APIResponse<User>> getRegById(@RequestParam long id) {
         User user = userService.getRegistrationById(id);
         APIResponse<User> response = new APIResponse<>();
         response.setMessage("Employee Details");
         response.setStatus(200);
         response.setData(user);
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
-
-
-        }
-
-
-
-
-
+}
