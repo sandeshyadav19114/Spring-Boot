@@ -55,6 +55,22 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		// for sending mail when new registration is created
+		
+		<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
+		
+// for sending sms when new registration is created or done for message such as simple and whatsapp message
+		<dependency>
+    <groupId>com.twilio.sdk</groupId>
+    <artifactId>twilio</artifactId>
+    <version>9.14.0</version>
+</dependency>
+created
+		
 	</dependencies>
 
 	<build>
